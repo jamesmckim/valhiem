@@ -13,5 +13,5 @@ flowchart LR
 A-->B;
 B-->C;
 B<-->D;
-C-->E;
+C-.->E;
 U-.->A;
