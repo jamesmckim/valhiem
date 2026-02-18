@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+docker
+python-jose[cryptography]
+bcrypt
+python-dotenv
+sqlalchemy
+python-multipart

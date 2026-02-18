@@ -1,0 +1,22 @@
+# --- Enviroment Variables & Secrets
+.env
+**/.env
+
+# --- Databases ---
+backend/creaftcloud.db
+*.db
+*.sqlite3
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Node/Frontend ---
+webui/node_modules/
+npm-debug.log
+
+# --- OS Generated Files ---
+.DS_Store
+Thumbs.db
