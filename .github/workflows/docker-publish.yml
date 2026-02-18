@@ -1,0 +1,34 @@
+name: Docker Publish
+
+on:
+  push:
+    branches: ["project"]
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    permission:
+      contents: read
+      packages: write
+
+    env:
+      DOCKER_REPO: ${{ github.repository_owner }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Lowercase the username
+        run: echo "DOCKER_REPO=${DOCKER_REPO}" >> $GITHUB_ENV
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghci.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Images
+        run: |
+          docker compose build
+          docker compose push

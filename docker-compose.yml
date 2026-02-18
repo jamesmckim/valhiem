@@ -2,6 +2,7 @@ services:
 
   dashboard:
     build: ./webui
+    image: ghcr.io/${DOCKER_REPO}/valhiem-dashboard:latest
     ports:
       - "8080:80"
     volumes:
@@ -10,6 +11,7 @@ services:
     
   manager-api:
     build: ./backend
+    image: ghcr.io/${DOCKER_REPO}/valheim-manager-api:latest
     user: root
     privileged: true
     ports:
@@ -48,6 +50,7 @@ services:
     
   sidecar-monitor:
     build: ./sidecar
+    image: ghcr.io/${DOCKER_REPO}/valhiem-sidecar:latest
     container_name: ${GAME_ID}-sidecar
     profiles:
       - manual
