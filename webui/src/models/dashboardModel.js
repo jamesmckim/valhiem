@@ -59,12 +59,16 @@ export class DashboardModel {
 	    /**
      * Deploys a new server instance
      * @param {string} gameId - The template ID (e.g., 'valheim', 'minecraft')
+     * @param {object} configData - The dynamic environment variables gathered from the form
      */
-    async deployServer(gameId) {
+    async deployServer(gameId, configData = {}) {
         return this.#request('/servers/deploy', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ game_id: gameId })
+            body: JSON.stringify({
+				game_id: gameId,
+				config: configData
+			})
         });
     }
 }

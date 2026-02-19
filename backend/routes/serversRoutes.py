@@ -1,16 +1,17 @@
-# backend/routes/servers.py
+# backend/routes/serversRoutes.py
 import time
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 import docker
 from pydantic import BaseModel
 from typing import Dict
+import traceback
 
 # Custom
 from auth import get_current_user_id
 from database import User
 from dependencies import get_db, manager
-from schemas import SidecarMetrics
+from schemas import SidecarMetrics, GameDeploymentPayload, ValheimConfigValidator
 
 router = APIRouter(prefix="/servers", tags=["Servers"])
 
@@ -72,15 +73,25 @@ def power_action(
 
 @router.post("/deploy")
 async def deploy_new_server(
-    payload: dict = Body(...), 
+    payload: GameDeploymentPayload, 
     user_id: str = Depends(get_current_user_id),
     db: Session = Depends(get_db)
 ):
-    game_id = payload.get("game_id")
+    game_id = payload.game_id
+    config_data = payload.config
+    
+    try:
+        if game_id == "valheim":
+            validated_config = ValheimConfigValidator(**config_data).dict()
+        else:
+            validated_config = config_data # Add other game validators later
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid configuration: {str(e)}")
+    
     user = db.query(User).filter(User.id == user_id).first()
     
     if not user or user.credits < 5.0:
         raise HTTPException(status_code=402, detail="Insufficient credits.")
 
-    new_container = manager.create_server(game_id, user_id)
+    new_container = manager.create_server(game_id, user_id, validated_config)
     return {"status": "success", "container_id": new_container.short_id}

@@ -2,6 +2,7 @@
 import docker
 import os
 import subprocess
+import uuid
 
 from dotenv import load_dotenv
 
@@ -51,7 +52,10 @@ class ServerManager:
             "up", "-d", server_id
         ], check=True)
 
-    def create_server(self, game_id: str, user_id: str):
+    def create_server(self, game_id: str, user_id: str, config_data: dict = None):
+        if config_data is None:
+            config_data = {}
+        
         """
         Launches a new game server using Docker Compose profiles.
         """
@@ -66,18 +70,36 @@ class ServerManager:
         service_name = game_map.get(game_id)
         if not service_name:
             raise Exception(f"Game template '{game_id}' not found in configuration.")
-
+        
+        unique_suffix = str(uuid.uuid4())[:8]
+        project_name = f"craftcloud-{game_id}-{unique_suffix}"
+        
+        deploy_env = os.environ.copy()
+        deploy_env["GAME_ID"] = project_name
+        deploy_env["GAME_TYPE"] = game_id
+        
+        for key, value in config_data.items():
+            deploy_env[key] = str(value)
+        
         try:
-            # We use '--profile manual' to ensure these don't start automatically 
-            # with the main stack, only when requested here.
+            # Start the game server FIRST
             subprocess.run([
                 "docker-compose",
+                "-p", project_name,
                 "-f", "/app/docker-compose.yml",
                 "up", "-d", service_name
-            ], check=True)
+            ], env=deploy_env, check=True)
+            
+            # Start the sidecar SECOND
+            subprocess.run([
+                "docker-compose",
+                "-p", project_name,
+                "-f", "/app/docker-compose.yml",
+                "up", "-d", "sidecar-monitor"
+            ], env=deploy_env, check=True) # <-- Passed here as well
             
             # Return the container object so the API can get the ID
-            return self.get_container(service_name)
+            return self.get_container(project_name)
             
         except subprocess.CalledProcessError as e:
             print(f"Compose Deployment Error: {e}")

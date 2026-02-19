@@ -26,6 +26,22 @@ services:
       - DOCKER_URL=${DOCKER_URL}
       - SECRET_KEY=${SECRET_KEY}
     
+  sidecar-monitor:
+    build: ./sidecar
+    image: ghcr.io/${DOCKER_REPO}/valheim-sidecar:latest
+    container_name: ${GAME_ID}-sidecar
+    profiles:
+      - manual
+    # This is the "Sidecar" magic: it shares the network of the game server
+    network_mode: "container:${GAME_ID}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # For CPU/RAM metrics
+    environment:
+      - TARGET_CONTAINER_NAME=${GAME_ID}
+      - MANAGER_API_URL=http://manager-api:5000
+      - IDLE_THRESHOLD_MINUTES=15
+      - GAME_TYPE="valheim" # temporary need to feed this when started
+    
   valheim-server:
     image: lloesche/valheim-server
     container_name: ${GAME_ID}
@@ -43,26 +59,10 @@ services:
     environment:
       - SERVER_NAME=${VALHEIM_SERVER_NAME}
       - WORLD_NAME=${VALHEIM_WORLD_NAME}
-      - SERVER_PASS=${VALHEIM_PASS}  # Must be at least 5 characters
-      - SERVER_PUBLIC=${VALHEIM_PUBLIC}
+      - SERVER_PASS=${VALHEIM_SERVER_PASS}  # Must be at least 5 characters
+      - SERVER_PUBLIC=1 # of course it's public wth
       - UPDATE_CRON=${VALHEIM_UPDATE_CRON}  # Automatically check for updates daily at 6 AM
-      - BACKUPS_MAX_COUNT=${VALHEIM_BACKUPS_MAX}    # Keep the last 5 automatic backups
-    
-  sidecar-monitor:
-    build: ./sidecar
-    image: ghcr.io/${DOCKER_REPO}/valhiem-sidecar:latest
-    container_name: ${GAME_ID}-sidecar
-    profiles:
-      - manual
-    # This is the "Sidecar" magic: it shares the network of the game server
-    network_mode: "service:valheim-server"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # For CPU/RAM metrics
-    environment:
-      - TARGET_CONTAINER_NAME=${GAME_ID}
-      - MANAGER_API_URL=http://manager-api:5000
-      - IDLE_THRESHOLD_MINUTES=15
-      - GAME_TYPE="valhiem" # temporary need to feed this when started
+      - BACKUPS_MAX_COUNT=${VALHEIM_BACKUPS_MAX_COUNT}    # Keep the last 5 automatic backups
     
 volumes:
   valheim-world-data:

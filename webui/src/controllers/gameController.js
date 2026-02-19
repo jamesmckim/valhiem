@@ -19,8 +19,20 @@ export class GameController {
         button.disabled = true;
         button.textContent = 'Deploying...';
 
+		let configData = {};
+		if(gameId === 'valheim') {
+			configData = {
+				VALHEIM_SERVER_NAME: document.getElementById(`${gameId}-name`).value,
+				VALHEIM_WORLD_NAME: document.getElementById(`${gameId}-world`).value,
+				VALHEIM_SERVER_PASS: document.getElementById(`${gameId}-pass`).value,
+				VALHEIM_UPDATE_CRON: document.getElementById(`${gameId}-cron`).value,
+				VALHEIM_BACKUPS_MAX_COUNT: document.getElementById(`${gameId}-backups`).value
+			};
+		}
+		
         try {
-            await this.dashModel.deployServer(gameId);
+            await this.dashModel.deployServer(gameId, configData);
+			
             alert(`Success! ${gameId} is spinning up.`);
             button.textContent = 'Active';
             button.style.background = '#2ecc71';
