@@ -1,3 +1,4 @@
+
 services:
 
   dashboard:
@@ -35,12 +36,13 @@ services:
     # This is the "Sidecar" magic: it shares the network of the game server
     network_mode: "container:${GAME_ID}"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # For CPU/RAM metrics
+      - valheim-world-data:/config:ro
     environment:
       - TARGET_CONTAINER_NAME=${GAME_ID}
       - MANAGER_API_URL=http://manager-api:5000
       - IDLE_THRESHOLD_MINUTES=15
       - GAME_TYPE="valheim" # temporary need to feed this when started
+      - LOG_FILE_PATH=/config/Bepinex/LogOutput.log
     
   valheim-server:
     image: lloesche/valheim-server

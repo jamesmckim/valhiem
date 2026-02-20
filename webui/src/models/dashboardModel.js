@@ -56,7 +56,7 @@ export class DashboardModel {
         });
     }
 	
-	    /**
+	/**
      * Deploys a new server instance
      * @param {string} gameId - The template ID (e.g., 'valheim', 'minecraft')
      * @param {object} configData - The dynamic environment variables gathered from the form
