@@ -6,16 +6,71 @@ import docker
 from pydantic import BaseModel
 from typing import Dict
 import traceback
+import threading
 
 # Custom
+from ai_agent import analyze_logs_with_ai
 from auth import get_current_user_id
 from database import User
 from dependencies import get_db, manager
-from schemas import SidecarMetrics, GameDeploymentPayload, ValheimConfigValidator
+from schemas import SidecarMetrics, GameDeploymentPayload, ValheimConfigValidator, LogPayload
 
 router = APIRouter(prefix="/servers", tags=["Servers"])
 
 live_stats_cache: Dict[str, dict] = {}
+
+# --- AI Log Buffering State ---
+# Stores the last 50 lines of logs per server: { "server_id": ["log1", "log2"] }
+server_log_buffers: Dict[str, list] = {}
+# Prevents spamming the AI if a server loops errors: { "server_id": 1679000000.0 }
+last_ai_analysis_time: Dict[str, float] = {}
+
+AI_COOLDOWN_SECONDS = 120 # Wait 2 minutes between AI analyses per server
+MAX_BUFFER_LINES = 50     # How much context to give the AI
+TRIGGER_WORDS = ["error", "exception", "failed", "timeout", "critical", "crash"]
+
+
+@router.post("/{server_id}/logs")
+async def receive_logs(server_id: str, payload: LogPayload):
+    # 1. Initialize buffer for this server if it doesn't exist
+    if server_id not in server_log_buffers:
+        server_log_buffers[server_id] = []
+
+    buffer = server_log_buffers[server_id]
+    ai_triggered = False
+    triggered_line = ""
+
+    # 2. Process incoming logs
+    for line in payload.logs:
+        buffer.append(line)
+        
+        # Check for trigger words (case insensitive)
+        line_lower = line.lower()
+        if any(word in line_lower for word in TRIGGER_WORDS):
+            ai_triggered = True
+            triggered_line = line
+
+    # 3. Trim the buffer to save memory (Keep only the last MAX_BUFFER_LINES)
+    if len(buffer) > MAX_BUFFER_LINES:
+        server_log_buffers[server_id] = buffer[-MAX_BUFFER_LINES:]
+
+    # 4. Trigger the AI Agent (in the background so we don't block the API)
+    current_time = time.time()
+    last_run = last_ai_analysis_time.get(server_id, 0)
+
+    if ai_triggered and (current_time - last_run) > AI_COOLDOWN_SECONDS:
+        last_ai_analysis_time[server_id] = current_time
+        
+        # Snapshot the logs to send to the AI
+        context_logs = list(server_log_buffers[server_id]) 
+        
+        # Run AI analysis in a background thread so the HTTP response is instant
+        threading.Thread(
+            target=analyze_logs_with_ai, 
+            args=(server_id, context_logs, triggered_line)
+        ).start()
+
+    return {"status": "logs_received", "lines_processed": len(payload.logs)}
 
 @router.get("")
 def list_servers(user_id: str = Depends(get_current_user_id)):
