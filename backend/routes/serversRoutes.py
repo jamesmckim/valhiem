@@ -1,21 +1,24 @@
 # backend/routes/serversRoutes.py
 import time
+import os
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 import docker
 from pydantic import BaseModel
 from typing import Dict
-import traceback
-import threading
+from celery import Celery
 
 # Custom
-from ai_agent import analyze_logs_with_ai
 from auth import get_current_user_id
-from database import User
+from database import User, IncidentReport
 from dependencies import get_db, manager
 from schemas import SidecarMetrics, GameDeploymentPayload, ValheimConfigValidator, LogPayload
 
 router = APIRouter(prefix="/servers", tags=["Servers"])
+
+# --- Lightweight Celery Sender ---
+REDIS_URL = os.getenv("REDIS_URL", "redis://redis-broker:6379/0")
+celery_sender = Celery("manager_api", broker=REDIS_URL)
 
 live_stats_cache: Dict[str, dict] = {}
 
@@ -29,6 +32,19 @@ AI_COOLDOWN_SECONDS = 120 # Wait 2 minutes between AI analyses per server
 MAX_BUFFER_LINES = 50     # How much context to give the AI
 TRIGGER_WORDS = ["error", "exception", "failed", "timeout", "critical", "crash"]
 
+@router.get("/{server_id}/incidents")
+def get_server_incidents(server_id: str, db: Session = Depends(get_db)):
+    """
+    Fetches the 10 most recent AI-analyzed crashes for a specific server.
+    """
+    incidents = (
+        db.query(IncidentReport)
+        .filter(IncidentReport.server_id == server_id)
+        .order_by(IncidentReport.created_at.desc())
+        .limit(10)
+        .all()
+    )
+    return incidents
 
 @router.post("/{server_id}/logs")
 async def receive_logs(server_id: str, payload: LogPayload):
@@ -64,11 +80,12 @@ async def receive_logs(server_id: str, payload: LogPayload):
         # Snapshot the logs to send to the AI
         context_logs = list(server_log_buffers[server_id]) 
         
-        # Run AI analysis in a background thread so the HTTP response is instant
-        threading.Thread(
-            target=analyze_logs_with_ai, 
-            args=(server_id, context_logs, triggered_line)
-        ).start()
+        # SEND TO CELERY / REDIS
+        # We call the task purely by its string name, no imports required!
+        celery_sender.send_task(
+            "analyze_logs_with_rag", 
+            args=[server_id, context_logs, triggered_line]
+        )
 
     return {"status": "logs_received", "lines_processed": len(payload.logs)}
 

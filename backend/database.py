@@ -1,6 +1,7 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey, Text, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql import func
 
 # This tells SQLite where to save the file
 SQLALCHEMY_DATABASE_URL = "sqlite:///./craftcloud.db"
@@ -29,3 +30,12 @@ class Server(Base):
 # Create the tables in the .db file
 def init_db():
     Base.metadata.create_all(bind=engine)
+    
+class IncidentReport(Base):
+    __tablename__ = "incident_reports"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    server_id = Column(String, index=True)
+    error_line = Column(String)
+    recommendation = Column(Text)
+    created_at = Column(DateTime, server_default=func.now())

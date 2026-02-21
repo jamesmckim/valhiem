@@ -26,7 +26,8 @@ services:
     environment:
       - DOCKER_URL=${DOCKER_URL}
       - SECRET_KEY=${SECRET_KEY}
-    
+      - REDIS_URL=redis://redis-broker:6379/0 # Point API to the queue
+
   sidecar-monitor:
     build: ./sidecar
     image: ghcr.io/${DOCKER_REPO}/valheim-sidecar:latest
@@ -43,7 +44,37 @@ services:
       - IDLE_THRESHOLD_MINUTES=15
       - GAME_TYPE="valheim" # temporary need to feed this when started
       - LOG_FILE_PATH=/config/Bepinex/LogOutput.log
-    
+        
+  redis-broker:
+    image: redis:8.6.0-alpine
+    container_name: task-queue
+    restart: always
+    ports:
+      - "6379:6379"
+      
+    # 2. The Dedicated AI Worker
+  ai-rag-worker:
+    build: ./worker
+    container_name: ai-worker
+    depends_on:
+      - redis-broker
+      - qdrant-db
+    environment:
+      - REDIS_URL=redis://redis-broker:6379/0
+      - LLM_URL=http://host.docker.internal:11434/v1
+      - QDRANT_URL=http://qdrant-db:6333
+      - DATABASE_URL=${DATABASE_URL}
+
+  # The Vector Database
+  qdrant-db:
+    image: qdrant/qdrant:v1.17.0
+    container_name: local-vector-db
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant-data:/qdrant/storage
+      
   valheim-server:
     image: lloesche/valheim-server
     container_name: ${GAME_ID}
@@ -70,4 +101,8 @@ volumes:
   valheim-world-data:
     driver: local
   valheim-binaries:
+    driver: local
+  ollama-models:
+    driver: local
+  qdrant-data:
     driver: local
