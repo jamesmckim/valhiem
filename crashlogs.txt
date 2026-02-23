@@ -1,0 +1,126 @@
+| Docker Connection Error: The npipe:// protocol is only supported on Windows
+manager-api-1    | Traceback (most recent call last):
+manager-api-1    |   File "/usr/local/bin/uvicorn", line 7, in <module>
+manager-api-1    |     sys.exit(main())
+manager-api-1    |              ~~~~^^
+manager-api-1    |   File "/usr/local/lib/python3.14/site-packages/click/core.py", line 1485, in __call__
+manager-api-1    |     return self.main(*args, **kwargs)
+manager-api-1    |            ~~~~~~~~~^^^^^^^^^^^^^^^^^
+manager-api-1    |   File "/usr/local/lib/python3.14/site-packages/click/core.py", line 1406, in main
+manager-api-1    |     rv = self.invoke(ctx)
+manager-api-1    |   File "/usr/local/lib/python3.14/site-packages/click/core.py", line 1269, in invoke
+manager-api-1    |     return ctx.invoke(self.callback, **ctx.params)
+manager-api-1    |            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+manager-api-1    |   File "/usr/local/lib/python3.14/site-packages/click/core.py", line 824, in invoke
+manager-api-1    |     return callback(*args, **kwargs)
+manager-api-1    |   File "/usr/local/lib/python3.14/site-packages/uvicorn/main.py", line 433, in main
+manager-api-1    |     run(
+manager-api-1    |     ~~~^
+manager-api-1    |         app,
+manager-api-1    |         ^^^^
+manager-api-1    |     ...<47 lines>...
+manager-api-1    |         h11_max_incomplete_event_size=h11_max_incomplete_event_size,
+manager-api-1    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+manager-api-1    |     )
+manager-api-1    |     ^
+manager-api-1    |   File "/usr/local/lib/python3.14/site-packages/uvicorn/main.py", line 606, in run
+manager-api-1    |     server.run()
+manager-api-1    |     ~~~~~~~~~~^^
+manager-api-1    |   File "/usr/local/lib/python3.14/site-packages/uvicorn/server.py", line 75, in run
+manager-api-1    |     return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+manager-api-1    |   File "/usr/local/lib/python3.14/asyncio/runners.py", line 204, in run
+manager-api-1    |     return runner.run(main)
+manager-api-1    |            ~~~~~~~~~~^^^^^^
+manager-api-1    |   File "/usr/local/lib/python3.14/asyncio/runners.py", line 127, in run
+manager-api-1    |     return self._loop.run_until_complete(task)
+manager-api-1    |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+manager-api-1    |   File "/usr/local/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+manager-api-1    |     return future.result()
+manager-api-1    |            ~~~~~~~~~~~~~^^
+manager-api-1    |   File "/usr/local/lib/python3.14/site-packages/uvicorn/server.py", line 79, in serve
+
+
+ai-worker        | /usr/local/lib/python3.14/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
+manager-api-1    |     await self._serve(sockets)
+
+
+manager-api-1    |   File "/usr/local/lib/python3.14/site-packages/uvicorn/server.py", line 86, in _serve
+ai-worker        | absolutely not recommended!
+
+
+manager-api-1    |     config.load()
+ai-worker        |
+manager-api-1    |     ~~~~~~~~~~~^^
+
+
+
+
+ai-worker        | Please specify a different user using the --uid option.
+manager-api-1    |   File "/usr/local/lib/python3.14/site-packages/uvicorn/config.py", line 441, in load
+ai-worker        |
+
+manager-api-1    |     self.loaded_app = import_from_string(self.app)
+
+
+ai-worker        | User information: uid=0 euid=0 gid=0 egid=0
+manager-api-1    |                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+
+
+
+
+ai-worker        |
+
+
+manager-api-1    |   File "/usr/local/lib/python3.14/site-packages/uvicorn/importer.py", line 19, in import_from_string
+ai-worker        |   warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
+manager-api-1    |     module = importlib.import_module(module_str)
+
+
+ai-worker        |  ktop   o View Config   w Enable Watch
+manager-api-1    |   File "/usr/local/lib/python3.14/importlib/__init__.py", line 88, in import_module
+
+manager-api-1    |     return _bootstrap._gcd_import(name[level:], package, level)
+ai-worker        |  -------------- celery@bb6642be289e v5.6.2 (recovery)
+ai-worker        | --- ***** -----
+
+
+
+manager-api-1    |            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ai-worker        | -- ******* ---- Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.41 2026-02-23 19:38:49
+
+manager-api-1 exited with code 1
+manager-api-1    |   File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+
+manager-api-1    |   File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+ai-worker        | - ** ---------- [config]
+manager-api-1    |   File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+
+ai-worker        | - ** ---------- .> app:         ai_worker:0x7372c7a6c050
+manager-api-1    |   File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+manager-api-1    |   File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+ai-worker        | - ** ---------- .> results:     redis://redis-broker:6379/0
+manager-api-1    |   File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+
+
+
+
+manager-api-1    |   File "/app/main.py", line 23, in <module>
+ai-worker        | - *** --- * --- .> concurrency: 4 (prefork)
+manager-api-1    |     app.include_router(telemtery.router, prefix="/servers")
+
+
+ai-worker        | -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+manager-api-1    |                        ^^^^^^^^^
+manager-api-1    | NameError: name 'telemtery' is not defined. Did you mean: 'telemetry'?
+ai-worker        | --- ***** -----
+ai-worker        |  -------------- [queues]
+ai-worker        |                 .> celery           exchange=celery(direct) key=celery
+ai-worker        |
+ai-worker        |
+ai-worker        | [tasks]
+ai-worker        |   . analyze_logs_with_rag
+ai-worker        |
+ai-worker        | [2026-02-23 19:38:50,295: INFO/MainProcess] Connected to redis://redis-broker:6379/0
+ai-worker        | [2026-02-23 19:38:50,306: INFO/MainProcess] mingle: searching for neighbors
+ai-worker        | [2026-02-23 19:38:51,331: INFO/MainProcess] mingle: all alone
+ai-worker        | [2026-02-23 19:38:51,587: INFO/MainProcess] celery@bb6642be289e ready.

@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import init_db
-from routes import authRoutes, serversRoutes # Import your new routers
+from routes import authRoutes, servers, telemetry, incidents # Import your new routers
 
 app = FastAPI(title="CraftCloud API")
 
@@ -18,7 +18,10 @@ app.add_middleware(
 
 # Register the routes
 app.include_router(authRoutes.router)
-app.include_router(serversRoutes.router)
+
+app.include_router(servers.router, prefix="/servers")
+app.include_router(telemetry.router, prefix="/servers")
+app.include_router(incidents.router, prefix="/servers")
 
 @app.get("/")
 async def root():

@@ -1,13 +1,17 @@
+# backend/database.py
+import os
 from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey, Text, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import func
 
 # This tells SQLite where to save the file
-SQLALCHEMY_DATABASE_URL = "sqlite:///./craftcloud.db"
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 
-# connect_args={"check_same_thread": False} is required only for SQLite
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+if not SQLALCHEMY_DATABASE_URL:
+    raise RuntimeError("DATABASE_URL environment variable is not set.")
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

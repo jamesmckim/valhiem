@@ -7,6 +7,7 @@ ENV PIP_NO_CACHE_DIR=1
 RUN apk add --no-cache \
     gcc \
     musl-dev \
+	postgresql-dev \
     python3-dev \
     libffi-dev
 
@@ -22,7 +23,7 @@ FROM python:3.14.1-alpine
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-RUN apk add --no-cache docker-cli docker-cli-compose
+RUN apk add --no-cache docker-cli docker-cli-compose libpq
 
 WORKDIR /app
 

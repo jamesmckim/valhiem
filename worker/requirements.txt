@@ -3,5 +3,3 @@ celery>=5.3.0
 redis>=5.0.0
 qdrant-client>=1.7.0
 openai>=1.0.0
-sqlalchemy
-psycopg2-binary

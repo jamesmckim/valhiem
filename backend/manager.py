@@ -24,16 +24,18 @@ class ServerManager:
         for c in containers:
             # Check for a specific label or your GAME_ID naming convention
             # For now, let's include anything that isn't the 'dashboard' or 'manager-api'
-            if c.name not in ["dashboard", "manager-api"]:
-                server_list.append({
-                    "id": c.name,
-                    "name": c.name.replace("-", " ").title(),
-                    "status": "online" if c.status == "running" else "offline",
-                    # Include default 0s so the UI doesn't break before the sidecar reports
-                    "cpu": 0,
-                    "ram": 0,
-                    "players": 0
-                })
+            if c.labels.get("craftcloud.role") != "game_server":
+                continue
+            
+            server_list.append({
+                "id": c.name,
+                "name": c.name.replace("-", " ").title(),
+                "status": "online" if c.status == "running" else "offline",
+                # Include default 0s so the UI doesn't break before the sidecar reports
+                "cpu": 0,
+                "ram": 0,
+                "players": 0
+            })
         return server_list
 
     def get_container(self, server_id: str):

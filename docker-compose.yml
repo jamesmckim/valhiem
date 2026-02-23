@@ -12,6 +12,8 @@ services:
     
   manager-api:
     build: ./backend
+    depends_on:
+      - db
     image: ghcr.io/${DOCKER_REPO}/valheim-manager-api:latest
     user: root
     privileged: true
@@ -24,10 +26,23 @@ services:
       - ./.env:/app/.env:ro
     working_dir: /app
     environment:
-      - DOCKER_URL=${DOCKER_URL}
+      - DOCKER_URL=unix://var/run/docker.sock
       - SECRET_KEY=${SECRET_KEY}
       - REDIS_URL=redis://redis-broker:6379/0 # Point API to the queue
+      - DATABASE_URL=postgresql://user:password123@db:5432/craftcloud
 
+  db:
+    image: postgres:18.2-alpine
+    container_name: craftcloud-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: craftcloud
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
   sidecar-monitor:
     build: ./sidecar
     image: ghcr.io/${DOCKER_REPO}/valheim-sidecar:latest
@@ -78,6 +93,8 @@ services:
   valheim-server:
     image: lloesche/valheim-server
     container_name: ${GAME_ID}
+    labels:
+      craftcloud.role: "game_server"
     restart: "no"
     profiles:
       - manual
@@ -102,7 +119,7 @@ volumes:
     driver: local
   valheim-binaries:
     driver: local
-  ollama-models:
-    driver: local
   qdrant-data:
+    driver: local
+  postgres_data:
     driver: local
