@@ -11,6 +11,7 @@ export class AuthController {
     init() {
         if (Auth.getToken()) {
             this.startApp();
+			this.bindLogout();
             return;
         }
 
@@ -22,13 +23,23 @@ export class AuthController {
             try {
                 await Auth.login(u, p);
                 this.startApp();
+				this.bindLogout();
             } catch (err) {
                 alert("Unauthorized: Please check your credentials.");
             }
         });
     }
+	
+	bindLogout() {
+        const btn = document.getElementById('logout-btn');
+        
+        if (!btn) return;
+		
+		btn.removeEventListener('click', this.handleLogout);
+        btn.addEventListener('click', this.handleLogout);
+	}
 
-    handleLogout() {
+    handleLogout = () => {
         Auth.logout();
     }
 

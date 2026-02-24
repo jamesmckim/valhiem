@@ -1,5 +1,9 @@
 # sidecar/main.py
-import os, time, requests
+import os
+import time
+import json
+import urllib.request
+import urllib.error
 from probes import get_probe
 
 # Config from Env
@@ -14,6 +18,23 @@ idle_seconds = 0
 
 sleep_secs = 10 # amount of secounds to sleep
 
+def send_request(endpoint, payload=None):
+    """Helper to send JSON POST requests using only the standard library."""
+    url = f"{API_URL}/servers/{TARGET}/{endpoint}"
+    try:
+        if payload:
+            data = json.dumps(payload).encode('utf-8')
+            req = urllib.request.Request(url, data=data, method='POST')
+            req.add_header('Content-Type', 'application/json')
+        else:
+            # Empty POST for stop command
+            req = urllib.request.Request(url, method='POST')
+            
+        with urllib.request.urlopen(req) as response:
+            return response.read()
+    except Exception as e:
+        print(f"Failed to contact manager at {endpoint}: {e}")
+
 try:
     log_file = open(LOG_FILE_PATH, 'r')
     log_file.seek(0, os.SEEK_END)
@@ -24,7 +45,10 @@ except FileNotFoundError:
 while True:
     try:
         # 1. Check Player Activity
-        players = probe.get_players()
+        try:
+            players = probe.get_player_count()
+        except Exception:
+            players = 0
         
         # 2. Handle Scaling Down
         if players == 0:
@@ -34,13 +58,11 @@ while True:
             
         if idle_seconds >= THRESHOLD:
             print(f"Idle threshold met. Requesting shutdown for {TARGET}...")
-            requests.post(f"{API_URL}/servers/{TARGET}/stop")
+            send_request("stop")
             break # Exit sidecar after stopping
 
         # 3. Report stats to your Manager API
-        requests.post(f"{API_URL}/servers/{TARGET}/metrics", json={
-            "players": players
-        })
+        send_request("metrics", {"players": players})
         
         # 4. Tail Logs and send to AI/Manager API
         if log_file:
@@ -55,9 +77,7 @@ while True:
                     new_logs.append(clean_line)
             if new_logs:
                 # Push the chunck of new logs to the manager
-                requests.post(f"{API_URL}/servers/{TARGET}/logs", json={
-                    "logs": new_logs
-                })
+                send_request("logs", {"logs": new_logs})
         else:
             # Try to hook the log file again if the game server created it late
             try:

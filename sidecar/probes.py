@@ -3,7 +3,7 @@ import socket
 
 class BaseProbe:
     def get_player_count(self):
-        raise 0
+        return 0
 
 class ValheimProbe(BaseProbe):
     def get_player_count(self):

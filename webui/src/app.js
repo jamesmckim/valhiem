@@ -26,11 +26,11 @@ async function startApp() {
     // 1. Tab Switching Logic
     navView.bindTabSwitch((tabId) => {
         navView.showTab(tabId);
+		// Quick data refresh
         if (tabId === 'dashboard') dashCtrl.refresh();
         if (tabId === 'selection') gameCtrl.loadGames();
-        if (tabId === 'logout') authCtrl.handleLogout();
     });
-
+	
     // 2. Global Event Delegation (Deployment)
     document.querySelector('.game-grid')?.addEventListener('click', (e) => {
         const btn = e.target.closest('.btn-login');
