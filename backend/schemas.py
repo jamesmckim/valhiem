@@ -1,5 +1,5 @@
 # backend/schemas.py
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, EmailStr
 from typing import Optional, List
 
 class GameDeploymentPayload(BaseModel):
@@ -49,7 +49,13 @@ class ServerDeploy(BaseModel):
 # Example: Data sent back to the user
 class UserProfile(BaseModel):
     username: str
+    email: EmailStr
     credits: float
+
+class UserRegister(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
 
 class LogPayload(BaseModel):
     logs: List[str]

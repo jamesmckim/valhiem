@@ -22,7 +22,7 @@ const Auth = {
         params.append('username', username);
         params.append('password', password);
 
-        const response = await fetch('/token', {
+        const response = await fetch('/api/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: params
@@ -35,6 +35,26 @@ const Auth = {
         const data = await response.json();
         this.saveToken(data.access_token);
         return data;
+    },
+	
+	// --- REGISTRATION METHOD ---
+    async register(username, email, password) {
+        const response = await fetch('/api/register', { // Assuming backend endpoint is /register
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                username: username,
+                email: email,
+                password: password 
+            })
+        });
+
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.detail || "Registration failed");
+        }
+
+        return await response.json();
     },
 
     // 3. SECURE API CALLER

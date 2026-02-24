@@ -24,12 +24,12 @@ export class DashboardModel {
      * Fetches the list of all managed containers
      */
     async getAllServers() {
-        return this.#request('/servers');
+        return this.#request('/api/servers');
     }
 	
 	async getProfile() {
         // This endpoint returns user data based on the Bearer Token
-        const response = await Auth.call('/users/me');
+        const response = await Auth.call('/api/users/me');
 		if (!response.ok) throw new Error("Failed to fetch profile");
 		return await response.json();
     }
@@ -40,7 +40,7 @@ export class DashboardModel {
      */
     async getServerDetails(serverId) {
         // Combined status/stats call for efficiency in a grid view
-        return this.#request(`/servers/${serverId}`);
+        return this.#request(`/api/servers/${serverId}`);
     }
 
     /**
@@ -49,7 +49,7 @@ export class DashboardModel {
      * @param {string} action - 'start', 'stop', or 'restart'
      */
     async sendPowerAction(serverId, action) {
-        return this.#request(`/servers/${serverId}/power`, { 
+        return this.#request(`/api/servers/${serverId}/power`, { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action }) 
@@ -62,7 +62,7 @@ export class DashboardModel {
      * @param {object} configData - The dynamic environment variables gathered from the form
      */
     async deployServer(gameId, configData = {}) {
-        return this.#request('/servers/deploy', {
+        return this.#request('/api/servers/deploy', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

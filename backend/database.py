@@ -21,15 +21,16 @@ class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
-    credits = Column(Float, default=10.0)  # Give new users 10 free credits!
+    credits = Column(Float, default=0)
 
 # --- Server Ownership Table ---
 class Server(Base):
     __tablename__ = "servers"
     id = Column(String, primary_key=True) # The Docker container name
     owner_id = Column(Integer, ForeignKey("users.id"))
-    hourly_cost = Column(Float, default=0.10) # $0.10 per hour
+    hourly_cost = Column(Float, default=0.10) # $0.10 per hour this needs to be updated to the cost
 
 # Create the tables in the .db file
 def init_db():

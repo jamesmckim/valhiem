@@ -24,15 +24,28 @@
 	  </aside>
 
 	  <div id="login-overlay" class="login-overlay">
-			<div class="login-card">
+		<div class="login-card">
+			<form id="login-form">
 				<h2>CraftCloud Login</h2>
-				<form id="login-form">
-					<input type="text" id="username" placeholder="Username" required>
-					<input type="password" id="password" placeholder="Password" required>
-					<button type="submit" class="btn-login">Unlock Dashboard</button>
-				</form>
-			</div>
+				<input type="text" id="username" placeholder="Username" required>
+				<input type="password" id="password" placeholder="Password" required>
+				<button type="submit" class="btn-login">Unlock Dashboard</button>
+			</form>
+
+			<form id="register-form" style="display: none;">
+				<h2>Create Account</h2>
+				<input type="text" id="reg-username" placeholder="Username" required>
+				<input type="email" id="reg-email" placeholder="Email" required>
+				<input type="password" id="reg-password" placeholder="Password" required>
+				<input type="password" id="reg-password-confirm" placeholder="Confirm Password" required>
+				<button type="submit" class="btn-login">Sign Up</button>
+			</form>
+
+			<p id="auth-toggle-text" style="margin-top: 1.5rem; color: #aaa; cursor: pointer; font-size: 0.9rem;">
+				Need an account? <span style="color: #3498db;">Sign up</span>
+			</p>
 		</div>
+	</div>
 
 		<section id="tab-account" class="tab-content active">
 			<h1>Account Overview</h1>

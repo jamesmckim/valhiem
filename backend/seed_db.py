@@ -33,6 +33,7 @@ def seed_admin():
         # 3. Create the admin user
         new_user = User(
             username="admin",
+            email="admin@example.com",
             hashed_password=get_password_hash("password123"),
             credits=100.0
         )
