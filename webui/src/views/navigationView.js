@@ -5,6 +5,7 @@ export class NavigationView {
         this.tabs = document.querySelectorAll('.tab-content');
         this.nameEl = document.getElementById('display-username');
         this.creditEl = document.getElementById('display-credits');
+		this.buyBtn = document.getElementById('btn-buy-credits');
     }
 
     bindTabSwitch(handler) {
@@ -21,6 +22,14 @@ export class NavigationView {
             tab.classList.toggle('active', tab.id === `tab-${tabId}`);
         });
     }
+	
+	bindOpenStore(handler) {
+		if (this.buyBtn) {
+			this.buyBtn.addEventListener('click', handler);
+		} else {
+			console.warn("Buy Credits button (id='btn-buy-credits') not found in HTML");
+		}
+	}
 
     updateAccountInfo(user) {
         if (this.nameEl) this.nameEl.textContent = user.username;

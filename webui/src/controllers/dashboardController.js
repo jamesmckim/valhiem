@@ -1,8 +1,26 @@
 // webui/src/controllers/dashboardController.js
+import StoreView from '../views/storeView.js';
+import PaymentService from '../services/paymentService.js';
+
 export class DashboardController {
     constructor(model, view) {
         this.model = model;
         this.view = view;
+		StoreView.init();
+		window.StoreController = {
+            buy: (pkg, provider) => this.handlePurchase(pkg, provider)
+        };
+    }
+	
+	async handlePurchase(packageId, provider) {
+        console.log(`Processing purchase: ${packageId} via ${provider}`);
+        // UI Feedback: Maybe change the button text in the modal?
+        await PaymentService.checkout(packageId, provider);
+    }
+
+    // --- NEW: Open the Store ---
+    openStore() {
+        StoreView.open();
     }
 
     async refresh() {

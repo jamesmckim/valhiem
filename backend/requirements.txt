@@ -11,3 +11,5 @@ redis>=5.0.0
 psycopg2-binary
 email-validator
 pydantic[email]
+stripe
+paypal-server-sdk

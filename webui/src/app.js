@@ -31,6 +31,10 @@ async function startApp() {
         if (tabId === 'selection') gameCtrl.loadGames();
     });
 	
+	navView.bindOpenStore(() => {
+        dashCtrl.openStore();
+    });
+	
     // 2. Global Event Delegation (Deployment)
     document.querySelector('.game-grid')?.addEventListener('click', (e) => {
         const btn = e.target.closest('.btn-login');
