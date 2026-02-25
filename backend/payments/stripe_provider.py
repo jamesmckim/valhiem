@@ -1,4 +1,4 @@
-# backend/payments/stripe_provider.py
+# /backend/payments/stripe_provider.py
 import stripe
 import os
 from .driver import PaymentProvider
