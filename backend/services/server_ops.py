@@ -5,6 +5,8 @@ from database import User
 from manager import ServerManager
 from redis import Redis
 
+from schemas import ValheimConfigValidator
+
 class ServerService:
     def __init__(self, db: Session, manager: ServerManager, redis: Redis):
         self.db = db
@@ -58,12 +60,21 @@ class ServerService:
                 raise HTTPException(status_code=402, detail="Insufficient credits.")
             self.manager.start_logic(server_id)
         elif action == "stop":
-            if container:
-                container.stop(timeout=30)
+            self.manager.stop_server(server_id)
         
         return {"result": "success", "status": "processing"}
 
     def deploy_server(self, user_id: str, game_id: str, config: dict):
+        
+        if game_id == "valheim":
+            try:
+                # Validate and sanitize using the Pydantic model
+                # .dict() ensures we pass clean data to the manager
+                config = ValheimConfigValidator(**config).dict()
+            except Exception as e:
+                # We catch the Pydantic validation error and return a clear HTTP 400
+                raise HTTPException(status_code=400, detail=f"Invalid configuration: {str(e)}")
+        
         user = self.db.query(User).filter(User.id == user_id).first()
         
         # Business Logic: Higher credit requirement for deployment

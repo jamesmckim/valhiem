@@ -43,7 +43,12 @@ class ServerManager:
             return self.client.containers.get(server_id)
         except:
             return None
-
+    
+    def stop_server(self, server_id):
+        container = self.get_container(server_id)
+        if container:
+            container.stop(timeout=30)
+    
     def start_logic(self, server_id: str):
         # Dynamically bring up the specific service from compose
         current_env = os.environ.copy()

@@ -3,14 +3,19 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from auth import get_current_user_id
-from dependencies import get_db, manager, redis_client
-from schemas import GameDeploymentPayload, ValheimConfigValidator
+from dependencies import get_db, get_server_manager, redis_client
+from schemas import GameDeploymentPayload, PowerActionPayload
 from services.server_ops import ServerService
+
+from manager import ServerManager # for type checking only!!
 
 router = APIRouter(tags=["Servers"])
 
 # Dependency Injection Factory
-def get_server_service(db: Session = Depends(get_db)):
+def get_server_service(
+    db: Session = Depends(get_db),
+    manager: ServerManager = Depends(get_server_manager)
+):
     return ServerService(db, manager, redis_client)
 
 @router.get("")
@@ -24,7 +29,7 @@ def list_servers(
     return service.list_servers()
 
 @router.get("/{server_id}")
-async def get_server_details(
+def get_server_details(
     server_id: str, 
     user_id: str = Depends(get_current_user_id),
     service: ServerService = Depends(get_server_service)
@@ -37,7 +42,7 @@ async def get_server_details(
 @router.post("/{server_id}/power")
 def power_action(
     server_id: str, 
-    payload: dict, 
+    payload: PowerActionPayload, 
     user_id: str = Depends(get_current_user_id),
     service: ServerService = Depends(get_server_service)
 ):
@@ -47,7 +52,7 @@ def power_action(
     return service.toggle_power(user_id, server_id, payload.get("action"))
 
 @router.post("/deploy")
-async def deploy_new_server(
+def deploy_new_server(
     payload: GameDeploymentPayload, 
     user_id: str = Depends(get_current_user_id),
     service: ServerService = Depends(get_server_service)
@@ -55,18 +60,4 @@ async def deploy_new_server(
     """
     Deploys a new game server container.
     """
-    # Validation Layer (Still belongs in Router or Schemas)
-    game_id = payload.game_id
-    config_data = payload.config
-    
-    try:
-        if game_id == "valheim":
-            # Validate specifically for Valheim
-            validated_config = ValheimConfigValidator(**config_data).dict()
-        else:
-            validated_config = config_data 
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid configuration: {str(e)}")
-    
-    # Service Layer (Business Logic)
-    return service.deploy_server(user_id, game_id, validated_config)
+    return service.deploy_server(user_id, payload.game_id, payload.config)

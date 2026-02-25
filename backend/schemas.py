@@ -1,6 +1,6 @@
 # backend/schemas.py
 from pydantic import BaseModel, Field, model_validator, EmailStr
-from typing import Optional, List
+from typing import Optional, List, Literal
 
 class GameDeploymentPayload(BaseModel):
     game_id: str
@@ -35,6 +35,9 @@ class ValheimConfigValidator(BaseModel):
             
         return self
     
+class PowerActionPayload(BaseModel):
+    action: Literal["start", "stop"]
+
 # Metrics reported by sibling containers
 class SidecarMetrics(BaseModel):
     cpu: float

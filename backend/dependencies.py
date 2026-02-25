@@ -10,6 +10,8 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://redis-broker:6379/0")
 
 # Initialize the manager once
 manager = ServerManager()
+def get_server_manager():
+    return manager
 
 # --- Database Dependency ---
 def get_db():
