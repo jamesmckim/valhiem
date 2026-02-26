@@ -1,3 +1,4 @@
+# /backend/app/core/security.py
 import os
 import bcrypt
 from dotenv import load_dotenv

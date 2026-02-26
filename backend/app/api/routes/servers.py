@@ -1,30 +1,23 @@
-# backend/routes/servers.py
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+# /backend/app/api/routes/servers.py
+from fastapi import APIRouter, Depends
+from typing import List
 
 from auth import get_current_user_id
-from dependencies import get_db, get_server_manager, redis_client
+# Import the fully wired service injector from your dependencies file
+from dependencies import get_server_service 
+from services.server_service import ServerService
 from schemas import GameDeploymentPayload, PowerActionPayload
-from services.server_ops import ServerService
-
-from manager import ServerManager # for type checking only!!
 
 router = APIRouter(tags=["Servers"])
 
-# Dependency Injection Factory
-def get_server_service(
-    db: Session = Depends(get_db),
-    manager: ServerManager = Depends(get_server_manager)
-):
-    return ServerService(db, manager, redis_client)
-
-@router.get("")
+@router.get("/")
 def list_servers(
     user_id: str = Depends(get_current_user_id),
     service: ServerService = Depends(get_server_service)
 ):
     """
-    Lists all available servers.
+    Lists all available servers. 
+    Requires valid auth (user_id), but lists global servers for now.
     """
     return service.list_servers()
 
@@ -49,7 +42,8 @@ def power_action(
     """
     Handles Start/Stop actions with credit checks.
     """
-    return service.toggle_power(user_id, server_id, payload.get("action"))
+    # Note: Access Pydantic model fields directly (.action), not via .get()
+    return service.toggle_power(user_id, server_id, payload.action)
 
 @router.post("/deploy")
 def deploy_new_server(
