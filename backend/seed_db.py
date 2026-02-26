@@ -1,7 +1,9 @@
 import time
 from sqlalchemy.exc import OperationalError
-from database import SessionLocal, init_db, User
-from auth import get_password_hash
+
+from app.core.database import SessionLocal, init_db
+from app.models.models import User
+from app.core.security import get_password_hash
 
 def seed_admin():
     # 1. Wait for Postgres to be ready (Retry logic)

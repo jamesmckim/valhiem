@@ -1,9 +1,10 @@
 # /backend/app/services/payment_service.py
 from fastapi import HTTPException
-from backend.repositories.user_repo import UserRepository
-from backend.payments.stripe_provider import StripeProvider
-from backend.payments.paypal_provider import PayPalProvider
-from backend.config.packages import CREDIT_PACKAGES
+
+from app.repositories.user_repo import UserRepository
+from app.payments.stripe_provider import StripeProvider
+from app.payments.paypal_provider import PayPalProvider
+from app.core.packages import CREDIT_PACKAGES
 
 class PaymentService:
     def __init__(self, user_repo: UserRepository):

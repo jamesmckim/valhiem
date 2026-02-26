@@ -2,8 +2,9 @@
 from celery import Celery
 from celery.result import AsyncResult
 from fastapi import HTTPException
-from database import IncidentReport
-from repositories.incident_repo import IncidentRepository
+
+from app.models.models import IncidentReport
+from app.repositories.incident_repo import IncidentRepository
 
 class IncidentService:
     def __init__(self, incident_repo: IncidentRepository, celery_app: Celery):

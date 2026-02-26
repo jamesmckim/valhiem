@@ -6,28 +6,28 @@ from celery import Celery
 import os
 
 # Import your database session factory
-from database import get_db 
+from app.core.database import get_db 
 
 # Import the new components
-from manager import ServerManager
-from repositories.user_repo import UserRepository
-from repositories.incident_repo import IncidentRepository
-from services.server_service import ServerService
-from services.incident_service import IncidentService
-from services.telemetry_service import TelemetryService
+from app.core.manager import ServerManager
+from app.repositories.user_repo import UserRepository
+from app.repositories.incident_repo import IncidentRepository
+from app.services.server_service import ServerService
+from app.services.incident_service import IncidentService
+from app.services.telemetry_service import TelemetryService
 
 # --- Configuration ---
 # We standardize the connection details here so both Redis and Celery use the same config
-REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
-REDIS_PORT = os.getenv("REDIS_PORT", "6379")
-REDIS_URL = os.getenv("REDIS_URL", f"redis://{REDIS_HOST}:{REDIS_PORT}/0")
+from app.core.config import settings
+
+REDIS_URL = f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/0"
 
 # Global Singletons (Initialized once)
 # In a real app, you might want to initialize these in a lifespan event or strictly inside the dependency
 _server_manager = ServerManager()
 _redis_client = Redis(
-    host=os.REDIS_HOST,
-    port=int(REDIS_PORT),
+    host=settings.REDIS_HOST,
+    port=settings.REDIS_PORT,
     db=0,
     decode_responses=True # Helper to get strings back instead of bytes
 )

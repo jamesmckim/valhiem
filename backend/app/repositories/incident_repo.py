@@ -2,8 +2,7 @@
 from typing import List
 from sqlalchemy.orm import Session
 
-# Adjust import based on where you move your models (e.g., app.domain.models)
-from database import IncidentReport
+from app.models.models import IncidentReport
 from app.repositories.base import BaseRepository
 
 class IncidentRepository(BaseRepository[IncidentReport]):

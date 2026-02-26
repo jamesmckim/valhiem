@@ -13,3 +13,4 @@ email-validator
 pydantic[email]
 stripe
 paypal-server-sdk
+pydantic-settings

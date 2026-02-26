@@ -2,8 +2,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
-# Adjust import based on where you move your models (e.g., app.domain.models)
-from database import User 
+from app.models.models import User 
 from app.repositories.base import BaseRepository
 
 class UserRepository(BaseRepository[User]):

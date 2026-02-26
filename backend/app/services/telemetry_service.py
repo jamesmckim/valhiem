@@ -2,7 +2,8 @@
 from typing import List
 from redis import Redis
 from celery import Celery
-from schemas import SidecarMetrics
+
+from app.schemas.schemas import SidecarMetrics
 
 class TelemetryService:
     # Service-level constants

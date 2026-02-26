@@ -1,7 +1,9 @@
 # /backend/app/api/routes/incidents.py
 from fastapi import APIRouter, Depends
-from services.incident_service import IncidentService
-from dependencies import get_incident_service
+
+# custom
+from app.services.incident_service import IncidentService
+from app.dependencies import get_incident_service
 
 router = APIRouter(tags=["Incidents"])
 

@@ -4,14 +4,14 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 # Custom Imports
-from dependencies import get_db
-from schemas import UserRegister, UserProfile
-from security import get_current_user_id # need to nename this file to security.py to remove confusion
-from database import User
+from app.dependencies import get_db
+from app.schemas.schemas import UserRegister, UserProfile
+from app.core.security import get_current_user_id # need to nename this file to security.py to remove confusion
+from app.models.models import User
 
 # Service Layer Imports
 from app.repositories.user_repo import UserRepository
-from services.auth_service import AuthService
+from app.services.auth_service import AuthService
 
 router = APIRouter(tags=["Authentication"])
 

@@ -1,6 +1,7 @@
 # /backend/app/models/models.py
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, Text, DateTime
 from sqlalchemy.sql import func
+
 from app.core.database import Base
 
 # --- User Table ---

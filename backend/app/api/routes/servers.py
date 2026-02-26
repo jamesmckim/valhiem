@@ -2,11 +2,10 @@
 from fastapi import APIRouter, Depends
 from typing import List
 
-from auth import get_current_user_id
-# Import the fully wired service injector from your dependencies file
-from dependencies import get_server_service 
-from services.server_service import ServerService
-from schemas import GameDeploymentPayload, PowerActionPayload
+from app.core.security import get_current_user_id
+from app.dependencies import get_server_service 
+from app.services.server_service import ServerService
+from app.schemas.schemas import GameDeploymentPayload, PowerActionPayload
 
 router = APIRouter(tags=["Servers"])
 

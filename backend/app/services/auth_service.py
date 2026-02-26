@@ -3,9 +3,9 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import SQLAlchemyError
 
 # Import your existing utilities and schemas
-from security import get_password_hash, verify_password, create_access_token # need to rename this file to security.py to remove confusion
-from schemas import UserRegister
-from database import User
+from app.core.security import get_password_hash, verify_password, create_access_token # need to rename this file to security.py to remove confusion
+from app.schemas.schemas import UserRegister
+from app.models.models import User
 from app.repositories.user_repo import UserRepository
 
 class AuthService:

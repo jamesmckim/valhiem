@@ -2,10 +2,10 @@
 from fastapi import HTTPException, status
 from redis import Redis
 
-from manager import ServerManager
-from repositories.user_repo import UserRepository
-from repositories.server_repo import ServerRepository  # [New Import]
-from schemas import ValheimConfigValidator
+from app.dependencies import ServerManager
+from app.repositories.user_repo import UserRepository
+from app.repositories.server_repo import ServerRepository  # [New Import]
+from app.schemas.schemas import ValheimConfigValidator
 
 class ServerService:
     def __init__(

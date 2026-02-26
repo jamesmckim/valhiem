@@ -5,7 +5,7 @@ const PaymentService = {
     // 1. Buy Credits (Redirects to Stripe/PayPal)
     async checkout(packageId, provider) {
         try {
-            const response = await Auth.call('/api/checkout', {
+            const response = await Auth.call('/api/payments/checkout', {
                 method: 'POST',
                 body: JSON.stringify({
                     package_id: packageId,

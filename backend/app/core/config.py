@@ -30,5 +30,6 @@ class Settings(BaseSettings):
         # This tells Pydantic to read your .env file
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"
 
 settings = Settings()

@@ -1,8 +1,10 @@
 # /backend/app/api/routes/telemetry.py
 from fastapi import APIRouter, Depends
-from schemas import LogPayload, SidecarMetrics
-from services.telemetry_service import TelemetryService
-from dependencies import get_telemetry_service
+
+# Custum import
+from app.schemas.schemas import LogPayload, SidecarMetrics
+from app.services.telemetry_service import TelemetryService
+from app.dependencies import get_telemetry_service
 
 router = APIRouter(tags=["Telemetry"])
 

@@ -4,12 +4,12 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
 # Database / Dependencies
-from backend.database import get_db
-from backend.repositories.user_repo import UserRepository
-from backend.services.payment_service import PaymentService
-from backend.auth.dependencies import get_current_user # Assuming you have this
+from app.core.database import get_db
+from app.repositories.user_repo import UserRepository
+from app.services.payment_service import PaymentService
+from app.core.security import get_current_user_id
 
-router = APIRouter()
+router = APIRouter(tags=["Payments"])
 
 # --- Dependency Injection Helper ---
 def get_payment_service(db: Session = Depends(get_db)) -> PaymentService:
@@ -29,14 +29,14 @@ class BuyRequest(BaseModel):
 async def create_checkout(
     request: BuyRequest, 
     service: PaymentService = Depends(get_payment_service),
-    current_user = Depends(get_current_user)
+    current_user_id = Depends(get_current_user_id)
 ):
     """
     Creates a payment session url (Stripe or PayPal)
     """
     # Delegate logic to the service
     return service.checkout(
-        user_id=current_user.id,
+        user_id=current_user_id,
         package_id=request.package_id,
         provider_name=request.provider
     )
