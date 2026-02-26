@@ -7,6 +7,10 @@ import { GameView } from './views/gameView.js';
 import { AuthController } from './controllers/authController.js';
 import { DashboardController } from './controllers/dashboardController.js';
 import { GameController } from './controllers/gameController.js';
+import { StoreController } from './controllers/storeController.js';
+
+import StoreView from './views/storeView.js';
+import PaymentService from './services/paymentService.js';
 
 // Initialize Models and Views
 const dashModel = new DashboardModel();
@@ -16,9 +20,10 @@ const gridView = new ServerGridView();
 const gameView = new GameView();
 
 // Initialize Controllers
-const dashCtrl = new DashboardController(dashModel, gridView);
+const dashCtrl = new DashboardController(dashModel, gridView, navView);
 const gameCtrl = new GameController(gameModel, gameView, dashModel);
 const authCtrl = new AuthController(startApp);
+const storeCtrl = new StoreController(StoreView, PaymentService);
 
 async function startApp() {
     document.getElementById('login-overlay').style.display = 'none';
@@ -32,7 +37,7 @@ async function startApp() {
     });
 	
 	navView.bindOpenStore(() => {
-        dashCtrl.openStore();
+        storeCtrl.openStore();
     });
 	
     // 2. Global Event Delegation (Deployment)

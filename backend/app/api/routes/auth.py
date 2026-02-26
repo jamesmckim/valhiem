@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 # Custom Imports
 from app.dependencies import get_db
 from app.schemas.schemas import UserRegister, UserProfile
-from app.core.security import get_current_user_id # need to nename this file to security.py to remove confusion
+from app.core.security import get_current_user_id
 from app.models.models import User
 
 # Service Layer Imports
@@ -58,13 +58,19 @@ async def get_user_profile(
     if you wanted full strictness, but for simple reads, 
     Repo access or direct query is often acceptable.
     """
+    # Convert the token's string ID back into an integer for the DB!
+    try:
+        db_user_id = int(user_id)
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid user ID format in token")
+    
     # Optional: You could use the Repo here for consistency
     repo = UserRepository(db)
-    user = repo.get_by_id(user_id) # Assuming BaseRepository has get_by_id or similar
+    user = repo.get_by_id(db_user_id)
     
     # Fallback to direct query if Repo doesn't have ID lookup yet
     if not user:
-        user = db.query(User).filter(User.id == user_id).first()
+        user = db.query(User).filter(User.id == db_user_id).first()
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

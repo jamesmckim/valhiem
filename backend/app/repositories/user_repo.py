@@ -9,6 +9,10 @@ class UserRepository(BaseRepository[User]):
     def __init__(self, db: Session):
         super().__init__(db, User)
 
+    def get_by_id(self, user_id: int) -> User | None:
+        """Retrieve a user by their numeric database ID."""
+        return self.db.query(User).filter(User.id == user_id).first()
+
     def get_by_username(self, username: str) -> User | None:
         """Retrieve a user by their unique username."""
         return self.db.query(User).filter(User.username == username).first()
@@ -25,10 +29,18 @@ class UserRepository(BaseRepository[User]):
         return self.db.query(User).filter(
             or_(User.username == username, User.email == email)
         ).first()
-     # Inside UserRepository class
+    
+    # Inside UserRepository class
     def add_credits(self, user_id: str, amount: int):
-        user = self.db.query(User).filter(User.id == user_id).first()
+        try:
+            db_id = int(user_id)
+        except ValueError:
+            return None # Failsafe if the ID format is completely wrong
+            
+        user = self.db.query(User).filter(User.id == db_id).first()
         if user:
             user.credits += amount
             self.db.commit()
             self.db.refresh(user)
+            return user
+        return None

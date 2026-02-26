@@ -1,66 +1,52 @@
 // webui/src/controllers/dashboardController.js
-import StoreView from '../views/storeView.js';
-import PaymentService from '../services/paymentService.js';
-
 export class DashboardController {
-    constructor(model, view) {
+    constructor(model, view, navView) {
         this.model = model;
         this.view = view;
-		StoreView.init();
-		window.StoreController = {
-            buy: (pkg, provider) => this.handlePurchase(pkg, provider)
-        };
-    }
-	
-	async handlePurchase(packageId, provider) {
-        console.log(`Processing purchase: ${packageId} via ${provider}`);
-        // UI Feedback: Maybe change the button text in the modal?
-        await PaymentService.checkout(packageId, provider);
-    }
-
-    // --- NEW: Open the Store ---
-    openStore() {
-        StoreView.open();
+		this.navView = navView;
     }
 
     async refresh() {
         try {
-            // 1. Fetch the list of servers first
-            const serverList = await this.model.getAllServers();
-
-            // 2. Fetch details (CPU/RAM) for EACH server in parallel
-            // We map over the list and call getServerDetails for every ID
-            const detailPromises = serverList.map(server => 
-                this.model.getServerDetails(server.id)
-            );
-            
-            // Wait for all details and the user profile to load
-            const [serversWithStats, user] = await Promise.all([
-                Promise.all(detailPromises),
-                this.model.getProfile()
+            // FIRE BOTH REQUESTS AT THE SAME TIME
+            // This prevents a server-list crash from stopping the profile fetch!
+            const [serverList, user] = await Promise.all([
+				this.model.getAllServers().catch(() => []), // Fallback to empty array if fails
+				this.model.getProfile()
             ]);
-            
-            // 3. Render the servers WITH the stats
-            this.view.renderServers(serversWithStats, this.handleServerAction.bind(this));
-            this.updateUserUI(user);
+			
+			this.updateUserUI(user);
+			
+            // Fetch details for EACH server
+            if (serverList.length > 0) {
+                const detailPromises = serverList.map(server => 
+                    this.model.getServerDetails(server.id)
+                );
+                const serversWithStats = await Promise.all(detailPromises);
+                
+                // Render the grid
+                this.view.renderServers(serversWithStats, this.handleServerAction.bind(this));
+            } else {
+                // Render an empty grid or "No servers" message
+                this.view.renderServers([], this.handleServerAction.bind(this));
+            }
+
         } catch (err) {
             console.error("Dashboard Sync Error:", err);
         }
     }
 
     updateUserUI(user) {
-        const nameEl = document.getElementById('display-username');
-        const creditEl = document.getElementById('display-credits');
-        if (nameEl) nameEl.textContent = user.username;
-        if (creditEl) creditEl.textContent = user.credits.toFixed(2);
+        if (this.navView) {
+			this.navView.updateAccountInfo(user);
+		}
     }
 
     async handleServerAction(serverId, currentStatus) {
-        // UI Feedback logic here (e.g., setting button to 'Processing...')
         try {
             const action = (currentStatus === 'online') ? 'stop' : 'start';
             await this.model.sendPowerAction(serverId, action);
-            await this.refresh(); // Refresh after action
+            await this.refresh(); 
         } catch (err) {
             alert(`Action failed: ${err.message}`);
         }

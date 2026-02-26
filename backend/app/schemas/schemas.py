@@ -1,5 +1,5 @@
 # backend/schemas.py
-from pydantic import BaseModel, Field, model_validator, EmailStr
+from pydantic import BaseModel, Field, model_validator, EmailStr, ConfigDict
 from typing import Optional, List, Literal
 
 class GameDeploymentPayload(BaseModel):
@@ -54,6 +54,8 @@ class UserProfile(BaseModel):
     username: str
     email: EmailStr
     credits: float
+    # Add this line to allow reading from SQLAlchemy models! (Pydantic v2)
+    model_config = ConfigDict(from_attributes=True)
 
 class UserRegister(BaseModel):
     username: str

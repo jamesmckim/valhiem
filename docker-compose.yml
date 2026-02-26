@@ -7,10 +7,11 @@ services:
       - "80:80"    # HTTP
       - "443:443"   # HTTPS
     volumes:
-      - ./gateway/nginx.conf/:/etc/nginx/conf.d/default.conf:ro
+      - ./gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./certs:/etc/nginx/certs:ro
     depends_on:
       - dashboard
+      - manager-api
   
   dashboard:
     build: ./webui
@@ -24,8 +25,10 @@ services:
   manager-api:
     build: ./backend
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     image: ghcr.io/${DOCKER_REPO}/cloudcraft-manager-api:latest
+    restart: always
     user: root
     privileged: true
     ports:
@@ -53,6 +56,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d craftcloud"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   
   sidecar-monitor:
     build: ./sidecar
