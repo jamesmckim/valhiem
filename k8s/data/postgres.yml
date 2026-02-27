@@ -1,0 +1,53 @@
+# 1. The Storage for the DB
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 5Gi
+---
+# 2. The Database Instance
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:18.3-alpine
+        env:
+        - name: POSTGRES_PASSWORD
+          value: "mysecretpassword" # Use Secrets in production!
+        - name: POSTGRES_DB
+          value: "thunderstore"
+        - name: POSTGRES_USER
+          value: "syncer_user"
+        volumeMounts:
+        - name: storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+---
+# 3. The Network Connector
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: postgres
