@@ -23,7 +23,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: syncer
-              image: ghcr.io/${DOCKER_REPO}/mod-syncer:latest # this line is broken needs to be hard coded in kustomization.yaml
+              image: mod-syncer-image
               env:
                 - name: TARGET_GAMES
                   valueFrom:

@@ -16,7 +16,6 @@ spec:
     spec:
       containers:
         - name: api
-          # Use a simple placeholder name! Kustomize will replace this later.
           image: manager-api-image
           ports:
             - containerPort: 5000

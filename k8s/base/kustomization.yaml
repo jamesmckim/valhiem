@@ -6,26 +6,44 @@ namespace: craftcloud-system
 
 # 1. Bring in all the sub-components
 resources:
+  - namespace.yaml
   - config/
-  - core/manager-api/
-  - games/valheim/
   - data/postgres/
   - data/redis/
   - data/qdrant/
-  # Add the rest as you build them:
-  # - core/dashboard/
-  # - core/ai-rag-worker/
+  - core/ingress.yaml
+  - core/manager-api/
+  - core/dashboard/
+  - core/mod-syncer/
+  - core/ai-rag-worker/
+  - games/valheim/
 
 # 2. Map the placeholder images to your actual GHCR images from your workflow
 images:
-  - name: manager-api-image # Matches the placeholder in manager-api/deployment.yaml
+  - name: manager-api-image
     newName: ghcr.io/your-github-username/cloudcraft-manager-api
     newTag: latest
     
-  - name: valheim-sidecar-image # Matches the placeholder in games/valheim/deployment.yaml
-    newName: ghcr.io/your-github-username/valheim-sidecar
+  - name: dashboard-image
+    newName: ghcr.io/your-github-username/cloudcraft-dashboard
+    newTag: latest
+
+  - name: mod-syncer-image
+    newName: ghcr/io/your-github-username/mod-syncer-image
     newTag: latest
     
-  # - name: dashboard-image
-  #   newName: ghcr.io/your-github-username/cloudcraft-dashboard
-  #   newTag: latest
+  - name: ai-rag-worker-image
+    newName: ghcr/io/your-github-username/mod-syncer-image
+    newTag: latest
+    
+  - name: valheim-sidecar-image
+    newName: ghcr.io/your-github-username/valheim-sidecar
+    newTag: latest
+
+secretGenerator:
+  - name: db-secrets
+    envs:
+      - secrets.env
+      
+generatorOptions: # this doesn't seem secure
+  disableNameSuffixHash: true
