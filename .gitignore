@@ -1,5 +1,6 @@
 # --- Enviroment Variables & Secrets
 .env
+*/env
 **/.env
 
 # --- Databases ---

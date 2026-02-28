@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: manager-api
+  labels:
+    app: manager-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: manager-api
+  template:
+    metadata:
+      labels:
+        app: manager-api
+    spec:
+      containers:
+        - name: api
+          # Use a simple placeholder name! Kustomize will replace this later.
+          image: manager-api-image
+          ports:
+            - containerPort: 5000
+          envFrom:
+            # Pulls in all variables from our generated config and secrets!
+            - configMapRef:
+                name: craftcloud-config
+            - secretRef:
+                name: craftcloud-secrets
